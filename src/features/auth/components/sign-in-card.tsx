@@ -13,6 +13,7 @@ import { FaGithub } from "react-icons/fa";
 import React, { useState } from "react";
 import { signInFlow } from "../types";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { TriangleAlert } from "lucide-react";
 
 interface SignInCardProps {
   setState: (state: signInFlow) => void;
@@ -24,8 +25,22 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleProviderSignIn = (value: "github" | "google") => {
+  const onPasswordSignIn = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setPending(true);
+    signIn("password", { email, password, flow: "signIn" })
+      .catch(() => {
+        setError("Invalid email or password");
+      })
+      .finally(() => {
+        setPending(false);
+      });
+  };
+
+  const onProviderSignIn = (value: "github" | "google") => {
     setPending(true);
     signIn(value).finally(() => {
       setPending(false);
@@ -34,16 +49,22 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
 
   return (
     <Card className="w-full h-full p-8">
-      <CardHeader className="pt-0 px-0 pb-0">
+      <CardHeader className="pt-0 px-0">
         <CardTitle>Login to continue</CardTitle>
+        <CardDescription className="pt-0 px-0">
+          Use your email or other service to continue
+        </CardDescription>
       </CardHeader>
-      <CardDescription className="pt-0 py-5 px-0">
-        Use your email or other service to continue
-      </CardDescription>
+      {!!error && (
+        <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
+          <TriangleAlert className="size-4" />
+          <p>{error}</p>
+        </div>
+      )}
       <CardContent className="space-y-5 px-0 pb-0">
-        <form className="space-y-2.5" action="">
+        <form onSubmit={onPasswordSignIn} className="space-y-2.5" action="">
           <Input
-            disabled={false}
+            disabled={pending}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -65,8 +86,8 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
         <Separator />
         <div className="flex flex-col gap-y-2.5">
           <Button
-            disabled={false}
-            onClick={() => handleProviderSignIn("google")}
+            disabled={pending}
+            onClick={() => onProviderSignIn("google")}
             variant={"outline"}
             size="lg"
             className="w-full relative"
@@ -76,7 +97,7 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
           </Button>
           <Button
             disabled={pending}
-            onClick={() => handleProviderSignIn("github")}
+            onClick={() => onProviderSignIn("github")}
             variant={"outline"}
             size="lg"
             className="w-full relative"
