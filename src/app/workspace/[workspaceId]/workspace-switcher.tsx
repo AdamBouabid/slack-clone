@@ -26,7 +26,7 @@ const WorkspaceSwitcher = () => {
   );
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button className="truncate size-9 relative overflow-hidden bg-[#ABABAD] hover:bg-[#ABABAD] text-slate-800 font-semibold text-xl">
           {workspaceLoading ? (
             <Loader className="size-5 animate-spin shrink-0" />
@@ -49,7 +49,7 @@ const WorkspaceSwitcher = () => {
           <DropdownMenuItem
             key={workspace._id}
             className="cursor-pointer capitalize overflow-hidden truncate"
-            onClick={() => router.push(`/workspaces/${workspace._id}`)}
+            onClick={() => router.push(`/workspace/${workspace._id}`)}
           >
             <div className="shrink-0 size-9 relative overflow-hidden bg-[#616061] text-white font-semibold text-lg rounded-md flex items-center justify-center mr-2">
               {workspace?.name.charAt(0).toUpperCase()}
