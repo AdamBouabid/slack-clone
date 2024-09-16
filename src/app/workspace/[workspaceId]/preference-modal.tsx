@@ -36,7 +36,7 @@ const PreferenceModal = ({
     useRemoveWorkspace();
 
   const [ConfirmDialog, confirm] = useConfirm(
-    "are you sure?",
+    "Are you sure?",
     "This action is irreversible"
   );
 
@@ -62,11 +62,10 @@ const PreferenceModal = ({
     );
   };
 
-  const handleRemove = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRemove = async () => {
     const ok = await confirm();
 
     if (!ok) return;
-    e.preventDefault();
     removeWorkspace(
       {
         id: workspaceId,
@@ -136,7 +135,7 @@ const PreferenceModal = ({
             <button
               className="flex items-center gap-x-2 px-5 py-4 border bg-white rounded-lg cursor-pointer hover:bg-gray-50 text-rose-600"
               disabled={isRemovingWorkspace}
-              onClick={() => handleRemove}
+              onClick={handleRemove}
             >
               <TrashIcon className="size-4" />
               <p className="text-sm font-semibold">Delete workspace</p>

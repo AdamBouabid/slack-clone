@@ -35,8 +35,8 @@ const useConfirm = (
 
   const ConfirmDialog = () => (
     <Dialog open={promise != null}>
-      <DialogContent className="p-0 bg-gray-50 overflow-hidden">
-        <DialogHeader className="p-4 border-b bg-white">
+      <DialogContent>
+        <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
