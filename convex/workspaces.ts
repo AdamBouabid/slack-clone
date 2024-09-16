@@ -25,7 +25,7 @@ export const get = query({
 
     const workspaceIds = members.map((member) => member.workspaceId);
 
-    const workspaces = [];
+    const workspaces: any[] | PromiseLike<any[]> = [];
 
     for (const workspaceId of workspaceIds) {
       const workspace = await ctx.db.get(workspaceId);
@@ -61,6 +61,11 @@ export const create = mutation({
       userId,
       workspaceId,
       role: "admin",
+    });
+
+    await ctx.db.insert("channels", {
+      name: "general",
+      workspaceId,
     });
 
     return workspaceId;
