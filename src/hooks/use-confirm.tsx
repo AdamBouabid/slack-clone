@@ -26,11 +26,11 @@ const useConfirm = (
   };
   const handleCancel = () => {
     promise?.resolve(false);
-    handleClose;
+    handleClose();
   };
   const handleConfirm = () => {
     promise?.resolve(true);
-    handleClose;
+    handleClose();
   };
 
   const ConfirmDialog = () => (

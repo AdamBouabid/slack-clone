@@ -1,6 +1,7 @@
 import { auth } from "./auth";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getRandomValues } from "crypto";
 
 const generateCode = () => {
   const code = Array.from(
@@ -161,5 +162,37 @@ export const remove = mutation({
     await ctx.db.delete(args.id);
 
     return args.id;
+  },
+});
+
+export const newJoinCode = mutation({
+  args: {
+    workspaceId: v.id("workspaces"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("userId", userId).eq("workspaceId", args.workspaceId)
+      )
+      .unique();
+
+    if (!member || member.role !== "admin") {
+      throw new Error("Unauthorized");
+    }
+
+    const joinCode = generateCode();
+
+    await ctx.db.patch(args.workspaceId, {
+      joinCode,
+    });
+
+    return args.workspaceId;
   },
 });
