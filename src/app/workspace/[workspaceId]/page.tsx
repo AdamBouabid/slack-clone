@@ -13,7 +13,7 @@ const WorksapceIdPage = () => {
   const workspaceId = useWorkspaceId();
   const router = useRouter();
   const [open, setOpen] = useCreateChannelModal();
-  const { data: member, isLoading: memberLoding } = useCurrentMember({
+  const { data: member, isLoading: memberLoading } = useCurrentMember({
     workspaceId,
   });
 
@@ -30,15 +30,15 @@ const WorksapceIdPage = () => {
     if (
       workspaceLoading ||
       channelsLoading ||
-      memberLoding ||
-      member ||
+      memberLoading ||
+      !member ||
       !workspace
     )
       return;
 
     if (channelId) {
       router.push(`/workspace/${workspaceId}/channel/${channelId}`);
-    } else if (!open || isAdmin) {
+    } else if (!open && isAdmin) {
       setOpen(true);
     }
   }, [
@@ -50,11 +50,12 @@ const WorksapceIdPage = () => {
     channelsLoading,
     workspace,
     member,
-    memberLoding,
+    memberLoading,
     isAdmin,
+    setOpen,
   ]);
 
-  if (workspaceLoading || channelsLoading || memberLoding) {
+  if (workspaceLoading || channelsLoading || memberLoading) {
     return (
       <div className="h-full flex-1 flex items-center justify-center flex-col gap-2">
         <Loader className="size-6 animate-spin text-muted-foreground" />
