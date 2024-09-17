@@ -59,9 +59,10 @@ const WorkspaceHeader = ({ isAdmin, workspace }: WorkspaceHeaderProps) => {
                 </p>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+
             {isAdmin && (
               <div>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer py-2"
                   onClick={() => setInviteOpen(true)}
