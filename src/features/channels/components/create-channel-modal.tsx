@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useCreateWorkspace } from "@/features/workspaces/api/use-create-workspaces";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateChannelModal } from "../store/use-create-channel-modal";
@@ -35,9 +34,13 @@ export const CreateChannelModal = () => {
     mutate(
       { name, workspaceId },
       {
-        onSuccess(data) {
+        onSuccess(id) {
+          router.push(`/workspace/${workspaceId}/channel/${id}`);
           toast.success("Channel created 🥳");
           handleClose();
+        },
+        onError: () => {
+          toast.error("Failed to create channel");
         },
       }
     );
