@@ -15,7 +15,7 @@ interface UserItemProps {
 }
 
 const userItemVariants = cva(
-  "flex items-center gap-1.5 justify-start font-normal h-7 px-4px text-sm overflow-hidden",
+  "flex items-center gap-1.5 justify-start font-normal h-7 px-4 text-sm overflow-hidden",
   {
     variants: {
       variant: {
@@ -42,7 +42,7 @@ const UserItem = ({ id, label, image, variant }: UserItemProps) => {
     >
       <Link href={`/workspace/${workspaceId}/member/${id}`}>
         <Avatar className="size-5 rounded-md mr-1">
-          <AvatarImage src={image} className="rounded-md mr-1" />
+          <AvatarImage src={image} className="rounded-md" />
           <AvatarFallback className="bg-sky-500 text-white text-xs">
             {avatarFallback}
           </AvatarFallback>
