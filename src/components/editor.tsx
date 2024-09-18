@@ -10,11 +10,12 @@ import Quill, { type QuillOptions } from "quill";
 import { PiTextAa } from "react-icons/pi";
 import { MdSend } from "react-icons/md";
 import { Button } from "./ui/button";
-import { ImageIcon, Smile } from "lucide-react";
+import { ImageIcon, Smile, XIcon } from "lucide-react";
 import { Hint } from "./hint";
 import { Delta, Op } from "quill/core";
 import { cn } from "@/lib/utils";
 import EmojiPopover from "./emoji-popover";
+import Image from "next/image";
 interface EditorProps {
   variant?: "create" | "update";
   onSubmit: ({ image, body }: EditorValue) => void;
@@ -48,12 +49,14 @@ const Editor = ({
     }
   };
   const [text, setText] = useState("");
+  const [image, setImage] = useState<File | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const placeholderRef = useRef(placeholder);
   const quillRef = useRef<Quill | null>(null);
   const disabledRef = useRef(disabled);
   const defaultValueRef = useRef(defaultValue);
   const submitRef = useRef(onSubmit);
+  const imageElmentRef = useRef<HTMLInputElement>(null);
   const onEmojiSelect = (emoji: any) => {
     const quill = quillRef.current;
     quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
@@ -130,13 +133,43 @@ const Editor = ({
         innerRef.current = null;
       }
     };
-  }, [innerRef, setText]);
+  }, [innerRef]);
 
   const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
   return (
     <div className="flex flex-col">
+      <input
+        type="file"
+        accept="image/*"
+        ref={imageElmentRef}
+        onChange={(event) => setImage(event.target.files![0])}
+        className="hidden"
+      />
       <div className="flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:shadow transition bg-white">
         <div ref={containerRef} className="h-full ql-custom" />
+        {!!image && (
+          <div className="p-2">
+            <div className="relative size-[62px] flex items-center justify-center group/image">
+              <Hint label="Remove image">
+                <button
+                  onClick={() => {
+                    setImage(null);
+                    imageElmentRef.current!.value = "";
+                  }}
+                  className="hidden group-hover/image:flex rounded-full bg-black/70 hover:bg-black absolute -top-2.5 -right-2.5 text-white size-6 z-[4] border-2 border-white items-center justify-center"
+                >
+                  <XIcon className="size-3.5" />
+                </button>
+              </Hint>
+              <Image
+                src={URL.createObjectURL(image)}
+                alt="Uploaded"
+                fill
+                className="rounded-xl overflow-hidden border object-cover"
+              />
+            </div>
+          </div>
+        )}
         <div className="flex px-2 pb-2 z-[5]">
           <Hint
             label={isToolbarVisible ? "Hide formatting" : "Show formatting"}
@@ -166,7 +199,10 @@ const Editor = ({
                 disabled={disabled}
                 size={"iconSm"}
                 variant={"ghost"}
-                onClick={() => {}}
+                onClick={() => {
+                  imageElmentRef.current?.click();
+                  console.log(image);
+                }}
               >
                 <ImageIcon className="size-4" />
               </Button>
