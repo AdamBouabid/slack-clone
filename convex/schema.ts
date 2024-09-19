@@ -34,18 +34,19 @@ const schema = defineSchema({
     channelId: v.optional(v.id("channels")),
     conversationId: v.optional(v.id("conversations")),
     parentMessagesId: v.optional(v.id("messages")),
-    updatedAt: v.number(),
+    updatedAt: v.optional(v.number()),
   })
     .index("by_workspace_id", ["workspaceId"])
     .index("by_member_id", ["memberId"])
     .index("by_channel_id", ["channelId"])
+    .index("by_parent_message_id", ["parentMessagesId"])
     .index("by_conversation_id", ["conversationId"])
     .index("by_channel_id_parent_message_id_conversation_id", [
       "channelId",
       "parentMessagesId",
       "conversationId",
     ]),
-  recation: defineTable({
+  reactions: defineTable({
     workspaceId: v.id("workspaces"),
     messageId: v.id("messages"),
     memberId: v.id("members"),
