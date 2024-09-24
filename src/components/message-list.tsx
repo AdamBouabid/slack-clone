@@ -1,7 +1,11 @@
 import { GetMessagesReturnType } from "@/features/messages/api/use-get-messages";
-import { group } from "console";
-import { format, isToday, isYesterday } from "date-fns";
-import React from "react";
+import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
+import React, { useState } from "react";
+import Message from "./message";
+import ChannelHero from "./channel-hero";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { Id } from "../../convex/_generated/dataModel";
+import { useCurrentMember } from "@/features/members/api/use-current-member";
 
 interface MessageListProps {
   memberName?: string;
@@ -9,7 +13,7 @@ interface MessageListProps {
   channelName?: string;
   channelCreationTime?: number;
   variant?: "channel" | "thread" | "conversation";
-  data: GetMessagesReturnType | undefined;
+  readonly data: GetMessagesReturnType;
   loadMore: () => void;
   isLoadingMore: boolean;
   canLoadMore: boolean;
@@ -22,6 +26,8 @@ const formatDateLabel = (dateStr: string) => {
   return format(date, "EEEE, MMMM d");
 };
 
+const TIME_THRESHOLD = 5;
+
 const MessageList = ({
   memberName,
   memberImage,
@@ -33,6 +39,10 @@ const MessageList = ({
   isLoadingMore,
   canLoadMore,
 }: MessageListProps) => {
+  const [editingId, setEditingId] = useState<Id<"messages"> | null>(null);
+  const workspaceId = useWorkspaceId();
+
+  const { data: currentMember } = useCurrentMember({ workspaceId });
   const groupedMessages = data?.reduce(
     (groups, message) => {
       const date = new Date();
@@ -48,7 +58,7 @@ const MessageList = ({
   return (
     <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
       {Object.entries(groupedMessages || {}).map(([dateKey, messages]) => (
-        <div className={dateKey}>
+        <div key={dateKey}>
           <div className="text-center my-2 relative">
             <hr className="absoulute top-1/2 left-0 right-0 border-t border-gray-300" />
             <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
@@ -56,11 +66,44 @@ const MessageList = ({
             </span>
           </div>
           {messages.map((message, index) => {
-            return <Message key={message._id} id={message._id} memberId={message.memberId} authormage={message.user.image}
-            reactions={messsage.reactions} body={message.body} image={message.image} updatedAt={message.updatedAt} updatedAt={message.updatedAt} createdAt={message._creationTime} threadCount={message.threadCount} threadImage={message.threadImage}>{JSON.stringify(message)}</div>;
+            const prevMessage = messages[index - 1];
+            const isCompact =
+              prevMessage &&
+              prevMessage.user?._id === message!.user._id &&
+              differenceInMinutes(
+                new Date(message!._creationTime),
+                new Date(message!._creationTime)
+              ) < TIME_THRESHOLD;
+            return (
+              <Message
+                key={message!._id}
+                id={message!._id}
+                memberId={message!.memberId}
+                authorName={message!.user.name}
+                authorImage={message!.user.image}
+                reactions={message!.reactions}
+                body={message!.body}
+                isAuthor={message?.memberId === currentMember?._id}
+                image={message!.image}
+                isEditing={editingId === message?._id}
+                setEditingId={setEditingId}
+                hideThreadButton={variant === "thread"}
+                updatedAt={message!.updatedAt}
+                createdAt={message!._creationTime}
+                threadCount={message!.treadCount}
+                threadImage={message!.threadImage}
+                isCompact={false}
+              />
+            );
           })}
         </div>
       ))}
+      {variant === "channel" && channelName && channelCreationTime && (
+        <ChannelHero
+          name={channelName}
+          creationTime={channelCreationTime}
+        ></ChannelHero>
+      )}
     </div>
   );
 };
